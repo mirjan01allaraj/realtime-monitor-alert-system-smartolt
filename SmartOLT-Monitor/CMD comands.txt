@@ -1,0 +1,5 @@
+python monitor_server.py
+
+
+
+pyinstaller smartolt_monitor_app.spec        install the exe

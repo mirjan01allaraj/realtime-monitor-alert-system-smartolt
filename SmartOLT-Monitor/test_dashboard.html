@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SmartOLT Monitor — Test Dashboard</title>
+<meta charset="UTF-8">
+<style>
+body {
+    background:#0b0c10;
+    color:white;
+    font-family:Arial;
+    padding:20px;
+}
+button {
+    padding:12px 20px;
+    margin:8px;
+    background:#27bcd8;
+    border:none;
+    color:black;
+    font-size:16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+button:hover { background:#1eaac2; }
+.box {
+    background:#1f2833;
+    padding:15px;
+    border-radius:8px;
+    margin-top:20px;
+    max-height:300px;
+    overflow:auto;
+}
+h2 { color:#27bcd8; }
+</style>
+
+<script>
+const API = "http://127.0.0.1:5005";
+
+function sendTest(data) {
+    fetch(API + "/update", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({"data": data})
+    })
+    .then(r => r.json())
+    .then(res => console.log("SENT ✔"))
+    .catch(err => alert("ERROR: " + err));
+}
+
+// ---------------- EXISTING BUTTONS ----------------
+function send0() {
+    sendTest({
+        r1:{label:"Online",value:"0"},
+        r2:{label:"Total Offline",value:"0"},
+        r3:{label:"PwrFail",value:"0"},
+        r4:{label:"LoS",value:"0"},
+        r5:{label:"N/A",value:"0"}
+    });
+}
+
+function sendReal() {
+    sendTest({
+        r1:{label:"Online",value:"101"},
+        r2:{label:"Total Offline",value:"2"},
+        r3:{label:"PwrFail",value:"1"},
+        r4:{label:"LoS",value:"1"},
+        r5:{label:"N/A",value:"0"}
+    });
+}
+
+function sendRandom() {
+    function r(){ return Math.floor(Math.random()*5); }
+    sendTest({
+        r1:{label:"Online",value:String(90+r())},
+        r2:{label:"Total Offline",value:String(r())},
+        r3:{label:"PwrFail",value:String(r())},
+        r4:{label:"LoS",value:String(r())},
+        r5:{label:"N/A",value:String(r())}
+    });
+}
+
+function sendOfflineIncrease() {
+    sendTest({
+        r1:{label:"Online",value:"100"},
+        r2:{label:"Total Offline",value:"4"},
+        r3:{label:"PwrFail",value:"2"},
+        r4:{label:"LoS",value:"1"},
+        r5:{label:"N/A",value:"1"}
+    });
+}
+
+function sendOnlineDrop() {
+    sendTest({
+        r1:{label:"Online",value:"95"},
+        r2:{label:"Total Offline",value:"1"},
+        r3:{label:"PwrFail",value:"0"},
+        r4:{label:"LoS",value:"1"},
+        r5:{label:"N/A",value:"0"}
+    });
+}
+
+// --------------------------------------------------------------------
+// 🔵 NEW FUNCTION — TEST FALSE NOTIFICATION (Simulo Skip + Retry)
+// --------------------------------------------------------------------
+function sendFalseNotification() {
+
+    // 1) STEP 1 – Send ALL ZERO (backend must SKIP + RETRY)
+    console.log("STEP 1 → Sending ALL ZERO (00000)");
+    send0();
+
+    // 2) STEP 2 – Wait 3 seconds → Send REAL values
+    setTimeout(() => {
+        console.log("STEP 2 → Sending REAL values after retry window");
+        sendReal();
+        alert("Test False Notification executed ✔\n\nBackend should SKIP first packet and RETRY.");
+    }, 3000);
+}
+
+// --------------------------------------------------------------------
+
+function loadLogs() {
+    fetch(API + "/logs")
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById("syslog").innerText =
+            data.system.join("\n\n");
+
+        document.getElementById("notiflog").innerText =
+            data.notifications.join("\n\n");
+    });
+}
+
+setInterval(loadLogs, 2000);
+</script>
+
+</head>
+<body>
+
+<h1>📡 SmartOLT Monitor — Test Dashboard</h1>
+
+<button onclick="send0()">SEND 0 VALUES (Skip Test)</button>
+<button onclick="sendReal()">SEND REAL VALUES</button>
+<button onclick="sendRandom()">SEND RANDOM</button>
+<br>
+<button onclick="sendOfflineIncrease()">TEST OFFLINE INCREASE</button>
+<button onclick="sendOnlineDrop()">TEST ONLINE DROP</button>
+
+<!-- ⭐ NEW BUTTON BELOW -->
+<button onclick="sendFalseNotification()" style="background:#f46a2e;color:white;">
+    🚨 Test False Notification (00000 → 3s → Real)
+</button>
+
+<h2>🖥 SYSTEM LOG</h2>
+<div class="box" id="syslog"></div>
+
+<h2>🔔 NOTIFICATION LOG</h2>
+<div class="box" id="notiflog"></div>
+
+</body>
+</html>

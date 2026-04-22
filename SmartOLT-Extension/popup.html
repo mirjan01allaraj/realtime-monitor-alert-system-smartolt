@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      width: 330px;
+      padding: 12px;
+      background: #f5f7fa;
+      color: #222;
+    }
+
+    h2 {
+      margin-top: 0;
+      text-align: center;
+      color: #1a73e8;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .btn {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+
+    .btn-start { background: #4caf50; color: #fff; }
+    .btn-stop  { background: #f44336; color: #fff; }
+    .btn-add   { background: #4caf50; color: #fff; }
+    .btn-clear { background: #e53935; color: #fff; }
+    .btn-test  { background: #2196f3; color: #fff; }
+    .btn-pick  { background: #ff9800; color: #fff; margin-top: 5px; }
+
+    .region-box {
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      font-size: 13px;
+    }
+
+    .footer {
+      margin-top: 15px;
+      font-size: 11px;
+      color: #999;
+      text-align: left;
+    }
+
+    select {
+      width: 100%;
+      padding: 6px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      font-weight: bold;
+      margin-top: 10px;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      margin-top: 8px;
+      font-weight: bold;
+      gap: 6px;
+    }
+
+    #statusIndicator {
+      font-size: 14px;
+    }
+
+    .small-note {
+      font-size: 11px;
+      color: #555;
+      margin-top: -2px;
+      margin-bottom: 6px;
+    }
+
+    .log-panel {
+      display: none;
+      background: #000;
+      color: #0f0;
+      padding: 8px;
+      border-radius: 6px;
+      height: 120px;
+      overflow-y: auto;
+      font-size: 11px;
+      margin-top: 6px;
+      white-space: pre-line;
+    }
+
+    .log-line-error   { color: #ff5252; }
+    .log-line-success { color: #00e676; }
+    .log-line-warn    { color: #ffeb3b; }
+    .log-line-info    { color: #40c4ff; }
+    .log-line-default { color: #e0e0e0; }
+
+    h3 {
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .log-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .small-mono {
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 11px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>SmartOLT Monitor</h2>
+
+<button class="btn btn-add" id="addRegion">Add Region</button>
+<button class="btn btn-clear" id="clearAll">Clear All</button>
+<button class="btn btn-test" id="testNotif">Test Notification</button>
+<div class="small-note">Test Notification (Desktop + Telegram)</div>
+
+<div class="subtitle">Monitoring Interval:</div>
+
+<select id="intervalSelector">
+  <option value="10000">10 seconds</option>
+  <option value="30000">30 seconds</option>
+  <option value="60000">1 minute</option>
+  <option value="180000">3 minutes</option>
+  <option value="300000">5 minutes</option>
+  <option value="600000">10 minutes</option>
+</select>
+
+<div class="status-bar">
+  <button class="btn btn-start" id="startBtn">START</button>
+  <button class="btn btn-stop" id="stopBtn">STOP</button>
+  <span id="statusIndicator">🔴 Stopped</span>
+</div>
+
+<div style="margin-top:6px; font-size:12px;">
+  Last Update: <span id="lastUpdateTime">—</span>
+</div>
+
+<hr>
+
+<!-- label history list -->
+<datalist id="labelHistory"></datalist>
+
+<div id="regions"></div>
+
+<!-- Logs section -->
+<h3>Notifications Log</h3>
+<div class="log-header-actions">
+  <button class="btn btn-test" id="toggleNotifLog">Show Log</button>
+</div>
+<div id="notifLogPanel" class="log-panel"></div>
+
+<h3>System Log</h3>
+<div class="log-header-actions">
+  <button class="btn btn-test" id="toggleSystemLog">Show Log</button>
+  <button class="btn btn-test" id="exportSystemLog">Export TXT</button>
+</div>
+<div class="small-note small-mono">
+  Includes Telegram send status (OK / failed / exception).
+</div>
+<div id="systemLogPanel" class="log-panel"></div>
+
+<div class="footer">Created by: Mallaraj.</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
